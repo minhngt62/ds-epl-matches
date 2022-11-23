@@ -6,8 +6,16 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+import json
 
+class JsonWriter:
+    def open_spider(self, spider):
+        self.file = open('epl_matches.jsonl', 'w')
+    
+    def close_spider(self, spider):
+        self.file.close()
 
-class ScrapersPipeline:
     def process_item(self, item, spider):
+        record = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        self.file.write(record)
         return item

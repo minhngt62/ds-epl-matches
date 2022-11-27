@@ -10,7 +10,7 @@ import json
 
 class JsonWriter:
     def open_spider(self, spider):
-        self.file = open('epl_matches.jsonl', 'w')
+        self.file = open(spider.savepoint, 'w')
     
     def close_spider(self, spider):
         self.file.close()

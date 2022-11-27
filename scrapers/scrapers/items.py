@@ -23,4 +23,5 @@ class Match(Item):
     home_result = Field(serializer=str)
     home_team = Field(serializer=Team)
     away_team = Field(serializer=Team)
+    season = Field(serializer=str)
 

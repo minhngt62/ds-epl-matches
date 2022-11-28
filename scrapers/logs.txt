@@ -8,10 +8,10 @@
 - 2020/21: Unexpected loss of 5 matches
  -> Require single, direct scraping
 	x Sheffield United (1m)
-	x Everton (1m)         
+	x Everton (1m) y       
       	- Leeds United (1m)        
 	x Chelsea (1m)         
-	x Manchester City (1m)
-	- Newcastle United (1m)---|
-	- Manchester United (3m)--|
-	- Southampton (1m)--------|
+	x Manchester City (1m) y
+	- Newcastle United (1m)
+	- Manchester United (3m)
+	- Southampton (1m)

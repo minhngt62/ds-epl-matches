@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 chrome_options = Options()
-chrome_options.add_argument("--window-size=1280,720")
+chrome_options.add_argument("--window-size=1280,1020")
 
 from ..items import *
 
@@ -27,15 +27,15 @@ class EPLSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-        url = "https://www.premierleague.com/match/58968"
+        url = "https://www.premierleague.com/results"
         yield SeleniumRequest(
             url=url,
-            callback=self.parse_match,
+            callback=self.parse,
         )
     
     def __init__(
-        self, timeout=10, 
-        seasons=["2020/21"] # "2022/23", "2021/22", "2020/21", "2019/20"
+        self, timeout=20, 
+        seasons=["2019/20"] # "2022/23", "2021/22", "2020/21", "2019/20"
         ):
         self.BASE_URL = "https://www.premierleague.com/match/"
         self.rolemap = {0: "gk", 1: "df", 2: "mf", 3: "fw"}
@@ -68,7 +68,7 @@ class EPLSpider(scrapy.Spider):
             new_height = driver.execute_script("return document.body.scrollHeight")
             while True:
                 driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-                time.sleep(2)
+                time.sleep(3)
                 prev_height = new_height
                 new_height = driver.execute_script("return document.body.scrollHeight")
                 if new_height == prev_height:
@@ -79,18 +79,17 @@ class EPLSpider(scrapy.Spider):
             wait.until_not(EC.presence_of_element_located((By.CSS_SELECTOR, loader_locator)))
 
             # find & send requests for the match page
-            fixtures = driver.find_elements(By.XPATH, '//*[@id="mainContent"]/div[3]/div[1]/div[2]/section/div[@class="fixtures__matches-list"]')
+            fixtures = driver.find_elements(By.CSS_SELECTOR, '#mainContent > div.tabbedContent > div.wrapper.col-12.tabLoader.active > div:nth-child(3) > section.fixtures > div.fixtures__matches-list')
             for fixture in fixtures:
-                matches = fixture.find_elements(By.XPATH, '//*[@class="matchList"]/*[@class="matchFixtureContainer"]')
+                matches = fixture.find_elements(By.CSS_SELECTOR, 'ul.matchList > li.matchFixtureContainer')
                 for match in matches:
                     yield SeleniumRequest(
                         url=self.BASE_URL + match.get_attribute("data-comp-match-item"),
                         callback=self.parse_match,
                         cb_kwargs=dict(season=season)
                     )
-                    
     
-    def parse_match(self, response, season="2020/21"):
+    def parse_match(self, response, season="2019/20"):
         driver = webdriver.Chrome(os.path.join(SCRAPERS_ROOT, "chromedriver.exe"))
         wait = WebDriverWait(driver, self.timeout)
         driver.get(response.url)
@@ -108,7 +107,7 @@ class EPLSpider(scrapy.Spider):
         lineup_locator = "#mainContent > div > section.mcContent > div.centralContent > div.mcTabsContainer > div.wrapper.col-12 > div > div > ul > li.matchCentreSquadLabelContainer"
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, lineup_locator)))
         driver.find_element(By.CSS_SELECTOR, lineup_locator).click()
-        time.sleep(1)
+        time.sleep(2)
 
         # lineup & team
         container_locator = "#mainContent > div > section.mcContent > div.centralContent > div.mcTabsContainer > div.mcTabs > section.squads.mcMainTab.active > div.wrapper > div.matchLineups"
@@ -133,7 +132,7 @@ class EPLSpider(scrapy.Spider):
         i = 0
         while i < 4:
             players = positions[i].find_elements(By.CSS_SELECTOR, 'li.player')
-            time.sleep(1)
+            #time.sleep(1)
             pos_field = []
             for player in players:
                 pos_field.append(Player(

@@ -80,14 +80,14 @@ class FPLSpider(scrapy.Spider):
 
                 # scrape previous seasons
                 try:
-                    table_cps = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#root-dialog > div > dialog > div > div.Dialog__StyledDialogBody-sc-5bogmv-9.jyKAwP.ism-overflow-scroll > div:nth-child(2) > div > div.sc-bdnxRM.cxwWgD > div.ElementDialog__ScrollTable-gmefnd-16.lkCaAQ > table > tbody')))
+                    table_cps = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#root-dialog > div > dialog > div > div.Dialog__StyledDialogBody-sc-5bogmv-9.jyKAwP.ism-overflow-scroll > div:nth-last-child(2) > div > div.sc-bdnxRM.cxwWgD > div.ElementDialog__ScrollTable-gmefnd-16.lkCaAQ > table > tbody')))
                     pre_ss_cps = table_cps.find_elements(By.CSS_SELECTOR, 'tr')
                     for pre_ss_cp in pre_ss_cps:
                         ix_cells = pre_ss_cp.find_elements(By.CSS_SELECTOR, 'td')[:19]
                         yield Player(
                             {'name': name} | 
                             {'id': id, "season": ix_cells[0].text} |
-                            {Player.INDICES[i-1]: float(ix_cells[i].text) for i in range(1, len(ix_cps))}
+                            {Player.INDICES[i-1]: float(ix_cells[i].text) for i in range(1, len(ix_cells))}
                         )
                 except SE.TimeoutException:
                     pass

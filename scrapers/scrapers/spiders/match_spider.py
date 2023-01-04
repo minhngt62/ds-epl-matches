@@ -19,7 +19,7 @@ chrome_options.add_argument("--window-size=1280,1020")
 from ..items import *
 
 class MatchSpider(scrapy.Spider):
-    name = "matchbot"
+    name = "matches"
     custom_settings = {
         'ITEM_PIPELINES': {
             'scrapers.pipelines.JsonWriter': 100

@@ -18,8 +18,8 @@ chrome_options.add_argument("--window-size=1280,1020")
 
 from ..items import *
 
-class EPLSpider(scrapy.Spider):
-    name = "eplbot"
+class MatchSpider(scrapy.Spider):
+    name = "matchbot"
     custom_settings = {
         'ITEM_PIPELINES': {
             'scrapers.pipelines.JsonWriter': 100
@@ -41,7 +41,7 @@ class EPLSpider(scrapy.Spider):
         self.rolemap = {0: "gk", 1: "df", 2: "mf", 3: "fw"}
         self.timeout = timeout
         self.seasons = seasons
-        self.savepoint = 'eplbot.jsonl'
+        self.output = 'matches.jsonl'
 
     def parse(self, response):
         # filter the season

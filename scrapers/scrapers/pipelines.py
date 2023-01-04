@@ -6,11 +6,12 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from scrapy import Item
 import json
 
 class JsonWriter:
     def open_spider(self, spider):
-        self.file = open(spider.savepoint, 'w')
+        self.file = open(spider.output, 'w')
     
     def close_spider(self, spider):
         self.file.close()
@@ -19,3 +20,8 @@ class JsonWriter:
         record = json.dumps(ItemAdapter(item).asdict()) + "\n"
         self.file.write(record)
         return item
+
+class PlayerDefaultFields:
+    def process_item(self, item: Item, spider):
+        for field in item.fields:
+            item.setdefault(field, 0)

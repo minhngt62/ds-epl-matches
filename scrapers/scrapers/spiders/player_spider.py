@@ -18,12 +18,12 @@ chrome_options.add_argument("--window-size=1280,1020")
 
 
 from ..items import *
+from scrapy import Item
 
 class PlayerSpider(scrapy.Spider):
     name = "players"
     custom_settings = {
         'ITEM_PIPELINES': {
-            'scrapers.pipelines.PlayerDefaultFields': 50,
             'scrapers.pipelines.JsonWriter': 100
         }
     }
@@ -93,7 +93,7 @@ class PlayerSpider(scrapy.Spider):
                 cb_kwargs=dict(crawl=crawl)
             )
     
-    def parse(self, response, crawl):
+    def parse(self, response, crawl) -> Item:
         driver = webdriver.Chrome(
             os.path.join(SCRAPERS_ROOT, "chromedriver.exe"), 
             chrome_options=chrome_options

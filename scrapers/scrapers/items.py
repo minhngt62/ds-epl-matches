@@ -15,7 +15,7 @@ class Player(Item):
         self.fields['defence_clean sheats'] = Field(default='0')
         self.fields['defence_goals conceded'] = Field(default='0')
         self.fields['defence_tackles'] = Field(default='0')
-        self.fields['defence_tackle sucess %'] = Field(default='0%')
+        self.fields['defence_tackle sucess %'] = Field(default='0')
         self.fields['defence_last man tackles'] = Field(default='0')
         self.fields['defence_blocked shots'] = Field(default='0')
         self.fields['defence_interceptions'] = Field(default='0')
@@ -37,7 +37,7 @@ class Player(Item):
         self.fields['teamplay_passes per match'] = Field(default='0')
         self.fields['teamplay_big chances created'] = Field(default='0')
         self.fields['teamplay_crosses'] = Field(default='0')
-        self.fields['teamplay_cross accuracy %'] = Field(default='0%')
+        self.fields['teamplay_cross accuracy %'] = Field(default='0')
         self.fields['teamplay_through balls'] = Field(default='0')
         self.fields['teamplay_accurate long balls'] = Field(default='0')
 
@@ -67,6 +67,9 @@ class Player(Item):
         self.fields['goalkeeping_sweeper clearances'] = Field(default='0')
         self.fields['goalkeeping_throw outs'] = Field(default='0')
         self.fields['goalkeeping_goal kicks'] = Field(default='0')
+
+        for field in self.fields:
+            self.setdefault(field, "0")
 
 class LineUp(Item):
     gk = Field(serializer=list)

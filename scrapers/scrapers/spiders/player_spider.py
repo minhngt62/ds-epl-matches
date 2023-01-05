@@ -71,14 +71,13 @@ class PlayerSpider(scrapy.Spider):
 
                 player_containers = driver.find_elements(By.CSS_SELECTOR, "#mainContent > div.playerIndex > div.wrapper > div > div > table > tbody > tr")
                 for player in player_containers:
-                    position = player.find_element(By.CSS_SELECTOR, "td:nth-child(2)")
+                    #position = player.find_element(By.CSS_SELECTOR, "td:nth-child(2)")
                     url = player.find_element(By.CSS_SELECTOR, "td:nth-child(1) > a")
                     self.crawls.append(
                         {
                             "id": url.find_element(By.CSS_SELECTOR, "img").get_attribute("data-player"),
                             "url": url.get_attribute("href").lstrip("//").replace("overview", "stats"),
                             "season": season,
-                            "postion": position.text,
                             "name": url.text
                         }
                     )
@@ -107,16 +106,21 @@ class PlayerSpider(scrapy.Spider):
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]/ul[@class="dropdownList"]/li[@data-option-name="{crawl["season"]}"]'))).click()
 
             player = Player()
+            player["season"] = crawl["season"]
+            player["id"] = crawl["id"] 
+            player["name"] = crawl["name"]
+
             stats_container = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#mainContent > div.wrapper.hasFixedSidebar > div > div > div.playerInfo > div > div > ul")))
             stats_blocks = stats_container.find_elements(By.CSS_SELECTOR, "li > div.statsListBlock")
             for block in stats_blocks:
-                header = block.find_element(By.CSS_SELECTOR, "div.headerStat").text.strip().lower()
+                header = block.find_element(By.CSS_SELECTOR, "div.headerStat").text.strip().lower().replace(" ", "")
                 stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stats")
                 for stat in stats:
                     cont = stat.text.split(" ")
-                    k, v = cont[0].strip().lower(), cont[1].strip()
-                    player[f"{header}_{k}"] = float(v)
+                    k, v = "".join(cont[:-1]).strip().lower(), cont[1].strip()
+                    player[f"{header}_{k}"] = v
             yield player
+
 
     def _save_urls(self) -> None:
         with open("url_" + self.output, "w") as f:

@@ -37,8 +37,8 @@ class PlayerSpider(scrapy.Spider):
 
     def __init__(
         self,
-        seasons: List[str] = ["2019/20", "2020/21", "2021/22"],
-        preload: str = "scrapers\url_players.jsonl"
+        seasons: List[str] = ["2018/19", "2019/20", "2020/21", "2021/22"],
+        preload: str = os.path.join(SCRAPERS_ROOT, "url_players.jsonl")
         ):
         self.seasons = seasons
         self.output = "players.jsonl"
@@ -75,51 +75,55 @@ class PlayerSpider(scrapy.Spider):
                     url = player.find_element(By.CSS_SELECTOR, "td:nth-child(1) > a")
                     self.crawls.append(
                         {
-                            "id": url.find_element(By.CSS_SELECTOR, "img").get_attribute("data-player"),
+                            "id": url.find_element(By.CSS_SELECTOR, "img").get_attribute("src"),
                             "url": url.get_attribute("href").lstrip("//").replace("overview", "stats"),
                             "season": season,
                             "name": url.text
                         }
                     )
             self._save_urls()
-            return
+        else:
+            with open(self.preload, "r") as f:
+                self.crawls: List[Dict[str, str]] = json.load(f)
         
-        with open(self.preload, "r") as f:
-            self.crawls: List[Dict[str, str]] = json.load(f)
-            self._parse()
-    
-    def _parse(self):
         for crawl in self.crawls:
-            driver = webdriver.Chrome(
-                os.path.join(SCRAPERS_ROOT, "chromedriver.exe"), 
-                chrome_options=chrome_options
+            yield SeleniumRequest(
+                url=crawl["url"],
+                callback=self.parse,
+                cb_kwargs=dict(crawl=crawl)
             )
-            
-            driver.get(crawl["url"])
-            time.sleep(self.load_relay)
-            
-            self._accept_cookie(driver, "body > div.tcf-cmp._1Qu7MokjMuBXLOM2oKVLhZ._3_H6MsAd1grAO7T3v2WdhQ > div > div > div._1QkG3L-zAijqYlFASTvCtT > div._24Il51SkQ29P1pCkJOUO-7 > button._2hTJ5th4dIYlveipSEMYHH.BfdVlAo_cgSVjDUegen0F.js-accept-all-close")
-            self._close_adv(driver, "#advertClose")
+    
+    def parse(self, response, crawl):
+        driver = webdriver.Chrome(
+            os.path.join(SCRAPERS_ROOT, "chromedriver.exe"), 
+            chrome_options=chrome_options
+        )
+        
+        driver.get(response.url)
+        time.sleep(self.load_relay)
+        
+        self._accept_cookie(driver, "body > div.tcf-cmp._1Qu7MokjMuBXLOM2oKVLhZ._3_H6MsAd1grAO7T3v2WdhQ > div > div > div._1QkG3L-zAijqYlFASTvCtT > div._24Il51SkQ29P1pCkJOUO-7 > button._2hTJ5th4dIYlveipSEMYHH.BfdVlAo_cgSVjDUegen0F.js-accept-all-close")
+        self._close_adv(driver, "#advertClose")
 
-            driver.execute_script("window.scrollTo(0,0);")
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]'))).click()
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]/ul[@class="dropdownList"]/li[@data-option-name="{crawl["season"]}"]'))).click()
+        driver.execute_script("window.scrollTo(0,0);")
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]'))).click()
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]/ul[@class="dropdownList"]/li[@data-option-name="{crawl["season"]}"]'))).click()
 
-            player = Player()
-            player["season"] = crawl["season"]
-            player["id"] = crawl["id"] 
-            player["name"] = crawl["name"]
+        player = Player()
+        player["season"] = crawl["season"]
+        player["id"] = crawl["id"] 
+        player["name"] = crawl["name"]
 
-            stats_container = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#mainContent > div.wrapper.hasFixedSidebar > div > div > div.playerInfo > div > div > ul")))
-            stats_blocks = stats_container.find_elements(By.CSS_SELECTOR, "li > div.statsListBlock")
-            for block in stats_blocks:
-                header = block.find_element(By.CSS_SELECTOR, "div.headerStat").text.strip().lower().replace(" ", "")
-                stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stats")
-                for stat in stats:
-                    cont = stat.text.split(" ")
-                    k, v = "".join(cont[:-1]).strip().lower(), cont[1].strip()
-                    player[f"{header}_{k}"] = v
-            yield player
+        stats_container = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#mainContent > div.wrapper.hasFixedSidebar > div > div > div.playerInfo > div > div > ul")))
+        stats_blocks = stats_container.find_elements(By.CSS_SELECTOR, "li > div.statsListBlock")
+        for block in stats_blocks:
+            header = block.find_element(By.CSS_SELECTOR, "div.headerStat").text.strip().lower().replace(" ", "")
+            stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stats")
+            for stat in stats:
+                cont = stat.text.split(" ")
+                k, v = "".join(cont[:-1]).strip().lower(), cont[1].strip()
+                player[f"{header}_{k}"] = v
+        yield player
 
 
     def _save_urls(self) -> None:
@@ -135,7 +139,7 @@ class PlayerSpider(scrapy.Spider):
     
     def _close_adv(self, driver: webdriver.Chrome, path):
         try:
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, path))).click()
+            WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CSS_SELECTOR, path))).click()
         except:
             pass
     

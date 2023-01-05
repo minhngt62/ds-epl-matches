@@ -41,7 +41,7 @@ class PlayerSpider(scrapy.Spider):
         preload: str = os.path.join(SCRAPERS_ROOT, "url_players.jsonl")
         ):
         self.seasons = seasons
-        self.output = "players.jsonl"
+        self.output = os.path.join(SCRAPERS_ROOT, "players.jsonl")
         self.load_relay = 3
         self.preload = preload
 
@@ -92,6 +92,7 @@ class PlayerSpider(scrapy.Spider):
                 callback=self.parse,
                 cb_kwargs=dict(crawl=crawl)
             )
+            break # DEBUG
     
     def parse(self, response, crawl) -> Item:
         driver = webdriver.Chrome(
@@ -118,11 +119,11 @@ class PlayerSpider(scrapy.Spider):
         stats_blocks = stats_container.find_elements(By.CSS_SELECTOR, "li > div.statsListBlock")
         for block in stats_blocks:
             header = block.find_element(By.CSS_SELECTOR, "div.headerStat").text.strip().lower().replace(" ", "")
-            stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stats")
+            stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stat")
             for stat in stats:
-                cont = stat.text.split(" ")
-                k, v = "".join(cont[:-1]).strip().lower(), cont[1].strip()
-                player[f"{header}_{k}"] = v
+                level = stat.find_element(By.CSS_SELECTOR, "span").text
+                perf = stat.text.replace(level, "").strip().lower()
+                player[f"{header}_{perf}"] = level.strip(" %")
         yield player
 
 

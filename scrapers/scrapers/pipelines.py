@@ -25,3 +25,4 @@ class PlayerDefaultFields:
     def process_item(self, item: Item, spider):
         for field in item.fields:
             item.setdefault(field, 0)
+        return item

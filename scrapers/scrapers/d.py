@@ -1,1 +1,0 @@
-print(" ioawnfioawnfoif\n      ".strip(" i").strip(), "hello")

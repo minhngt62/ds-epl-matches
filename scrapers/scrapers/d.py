@@ -1,4 +1,1 @@
-import items
-
-player = items.Player()
-print(player)
+print(" ioawnfioawnfoif\n      ".strip(" i").strip(), "hello")

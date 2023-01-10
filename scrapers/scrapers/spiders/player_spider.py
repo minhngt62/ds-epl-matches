@@ -14,7 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 chrome_options = Options()
-chrome_options.add_argument("--window-size=1280,1020")
+chrome_options.add_argument("--window-size=1280,1200")
 
 
 from ..items import *
@@ -41,9 +41,9 @@ class PlayerSpider(scrapy.Spider):
         preload: str = os.path.join(SCRAPERS_ROOT, "url_players.jsonl")
         ):
         self.seasons = seasons
-        self.output = os.path.join(SCRAPERS_ROOT, "players.jsonl")
+        self.output = "players.jsonl"
         self.load_relay = 3
-        self.preload = preload
+        self.preload = False
 
         self.crawls: List[Dict[str, str]] = [] # {"url": url, "season": season}
 
@@ -75,7 +75,7 @@ class PlayerSpider(scrapy.Spider):
                     url = player.find_element(By.CSS_SELECTOR, "td:nth-child(1) > a")
                     self.crawls.append(
                         {
-                            "id": url.find_element(By.CSS_SELECTOR, "img").get_attribute("src"),
+                            "id": url.find_element(By.CSS_SELECTOR, "img").get_attribute("data-player"),
                             "url": url.get_attribute("href").lstrip("//").replace("overview", "stats"),
                             "season": season,
                             "name": url.text
@@ -85,23 +85,22 @@ class PlayerSpider(scrapy.Spider):
         else:
             with open(self.preload, "r") as f:
                 self.crawls: List[Dict[str, str]] = json.load(f)
-        
+
         for crawl in self.crawls:
             yield SeleniumRequest(
                 url=crawl["url"],
                 callback=self.parse,
                 cb_kwargs=dict(crawl=crawl)
             )
-            break # DEBUG
     
-    def parse(self, response, crawl) -> Item:
+    def parse(self, response, crawl) -> Player:
         driver = webdriver.Chrome(
             os.path.join(SCRAPERS_ROOT, "chromedriver.exe"), 
             chrome_options=chrome_options
         )
         
         driver.get(response.url)
-        time.sleep(self.load_relay)
+        time.sleep(1)
         
         self._accept_cookie(driver, "body > div.tcf-cmp._1Qu7MokjMuBXLOM2oKVLhZ._3_H6MsAd1grAO7T3v2WdhQ > div > div > div._1QkG3L-zAijqYlFASTvCtT > div._24Il51SkQ29P1pCkJOUO-7 > button._2hTJ5th4dIYlveipSEMYHH.BfdVlAo_cgSVjDUegen0F.js-accept-all-close")
         self._close_adv(driver, "#advertClose")
@@ -109,6 +108,7 @@ class PlayerSpider(scrapy.Spider):
         driver.execute_script("window.scrollTo(0,0);")
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]'))).click()
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, f'//*[@id="mainContent"]/div[3]/div/div/div[2]/div/div/section/div[@data-dropdown-block="compSeasons"]/ul[@class="dropdownList"]/li[@data-option-name="{crawl["season"]}"]'))).click()
+        time.sleep(self.load_relay)
 
         player = Player()
         player["season"] = crawl["season"]
@@ -122,22 +122,22 @@ class PlayerSpider(scrapy.Spider):
             stats = block.find_elements(By.CSS_SELECTOR, "div.normalStat > span.stat")
             for stat in stats:
                 level = stat.find_element(By.CSS_SELECTOR, "span").text
-                perf = stat.text.replace(level, "").strip().lower()
+                perf = stat.text.strip(f" {level}").strip().lower()
                 player[f"{header}_{perf}"] = level.strip(" %")
+        
         yield player
 
 
     def _save_urls(self) -> None:
-        with open("url_" + self.output, "w") as f:
+        with open(os.path.join(SCRAPERS_ROOT, "url_" + self.output), "w") as f:
             json.dump(self.crawls, f)
             
     def _accept_cookie(self, driver: webdriver.Chrome, path):
         try:
-            WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, path)))
-            driver.find_element(By.CSS_SELECTOR, path).click()
+            WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, path))).click()
         except:
             pass
-    
+
     def _close_adv(self, driver: webdriver.Chrome, path):
         try:
             WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CSS_SELECTOR, path))).click()

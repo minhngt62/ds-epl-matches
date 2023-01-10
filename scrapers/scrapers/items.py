@@ -12,10 +12,10 @@ class Player(Item):
 
     def __init__(self, *args, **kwargs):
         super(Player, self).__init__(*args, **kwargs)
-        self.fields['defence_clean sheats'] = Field(default='0')
+        self.fields['defence_clean sheets'] = Field(default='0')
         self.fields['defence_goals conceded'] = Field(default='0')
         self.fields['defence_tackles'] = Field(default='0')
-        self.fields['defence_tackle sucess %'] = Field(default='0')
+        self.fields['defence_tackle success %'] = Field(default='0')
         self.fields['defence_last man tackles'] = Field(default='0')
         self.fields['defence_blocked shots'] = Field(default='0')
         self.fields['defence_interceptions'] = Field(default='0')
@@ -26,8 +26,8 @@ class Player(Item):
         self.fields['defence_duels won'] = Field(default='0')
         self.fields['defence_duels lost'] = Field(default='0')
         self.fields['defence_successful 50/50s'] = Field(default='0')
-        self.fields['defence_ariel battles won'] = Field(default='0')
-        self.fields['defence_ariel battles lost'] = Field(default='0')
+        self.fields['defence_aerial battles won'] = Field(default='0')
+        self.fields['defence_aerial battles lost'] = Field(default='0')
         self.fields['defence_own goals'] = Field(default='0')
         self.fields['defence_errors leading to goal'] = Field(default='0')
         

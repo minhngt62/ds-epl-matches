@@ -9,9 +9,13 @@ from itemadapter import ItemAdapter
 from scrapy import Item
 import json
 
+import os
+from pathlib import Path
+SCRAPERS_ROOT = Path(__file__).parent.parent.resolve()
+
 class JsonWriter:
     def open_spider(self, spider):
-        self.file = open(spider.output, 'w')
+        self.file = open(os.path.join(SCRAPERS_ROOT, spider.output), 'w')
     
     def close_spider(self, spider):
         self.file.close()

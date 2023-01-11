@@ -43,7 +43,7 @@ class PlayerSpider(scrapy.Spider):
         self.seasons = seasons
         self.output = "players.jsonl"
         self.load_relay = 3
-        self.preload = False
+        self.preload = preload
 
         self.crawls: List[Dict[str, str]] = [] # {"url": url, "season": season}
 
@@ -92,6 +92,7 @@ class PlayerSpider(scrapy.Spider):
                 callback=self.parse,
                 cb_kwargs=dict(crawl=crawl)
             )
+            break
     
     def parse(self, response, crawl) -> Player:
         driver = webdriver.Chrome(

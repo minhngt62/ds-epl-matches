@@ -92,7 +92,6 @@ class PlayerSpider(scrapy.Spider):
                 callback=self.parse,
                 cb_kwargs=dict(crawl=crawl)
             )
-            break
     
     def parse(self, response, crawl) -> Player:
         driver = webdriver.Chrome(

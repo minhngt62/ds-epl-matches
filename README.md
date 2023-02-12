@@ -25,6 +25,7 @@ data/                       # where to store the data
 notebook                    # jupyter notebooks for the pipeline
 -- ./images/                # figures from the notebooks
 -- ./models/                # all trained models from modelling
+scrapers                    # data collection program (built using Scrapy & Selenium)
 reports                     # project report
 README.md           
 ```
@@ -39,3 +40,4 @@ To rerun the notebooks, you will need to install the specific setup below. We su
     ```
     pip install -r requirements.txt
     ```
+3. The scraping tool is built using [`Scrapy`](https://scrapy.org/) and [`Selenium`](https://github.com/clemfromspace/scrapy-selenium) (`scrapy-selenium`).

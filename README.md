@@ -4,7 +4,7 @@ The English Premier League, commonly referred to as the EPL, is the top tier of 
 
 Currently, there are many differernt prediction schemas for match results but a strategy that aims to forecast a match result from the beginning is rarely seen. Therefore, we focus on the starting lineups of both teams (home and away) in a match, exploiting the player statistics to gain insights into how the lineup tactics (e.g., positions, formation,...) affect the final match result and, perform prediction (win/lose/draw).
 
-**For more details, please read the report provided in folder `reports`.**
+**For more details, please read the report provided in folder [`report`](https://github.com/minhngt62/ds-epl-matches/tree/main/report).**
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/86721208/218306170-72ec837d-917e-4b1b-ae14-a31a989f38e1.jpg" />
@@ -26,7 +26,7 @@ notebook                    # jupyter notebooks for the pipeline
 -- ./images/                # figures from the notebooks
 -- ./models/                # all trained models from modelling
 scrapers                    # data collection program (built using Scrapy & Selenium)
-reports                     # project report
+report                     # project report
 README.md           
 ```
 ---

@@ -1,4 +1,4 @@
-# English Premier Leagues Matches and Starting Lineups
+# English Premier League and the Starting Lineups
 
 The English Premier League, commonly referred to as the EPL, is the top tier of professional football in England and one of the most popular and widely followed football leagues in the world. It was founded in 1992 and consists of 20 clubs playing 38 matches each, for a total of 380 matches in a season. The league operates on a promotion and relegation system, with the bottom three clubs being relegated to the second tier of English football and being replaced by the top three clubs from that division. Over the years, the Premier League has become known for its high levels of competitiveness, world-class players, and intense rivalries between clubs. The league attracts a huge following both domestically and internationally, and its matches are broadcast to millions of viewers in over 200 countries.
 
